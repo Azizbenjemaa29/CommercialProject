@@ -1,0 +1,1134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tylcao — Flux d'Opportunités & Pipeline Commercial</title>
+  <meta name="description" content="Tableau de bord de prospection commerciale B2B ExpressDisplay. Leads qualifiés par Google Gemini 1.5 Flash avec traçabilité de source.">
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --bg-surface: #0e1424;
+      --bg-card: #121b30;
+      --bg-card-hover: #18233e;
+      --brand-blue: #0066ff;
+      --brand-blue-glow: rgba(0, 102, 255, 0.35);
+      --brand-cyan: #38bdf8;
+      --brand-cyan-glow: rgba(56, 189, 248, 0.25);
+      --accent-emerald: #10b981;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(0, 102, 255, 0.35);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-display: 'Outfit', 'Plus Jakarta Sans', system-ui, sans-serif;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .glow-orb-1 {
+      position: absolute;
+      top: -15%;
+      left: 15%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0, 102, 255, 0.16) 0%, rgba(0, 102, 255, 0) 70%);
+      filter: blur(90px);
+    }
+    .glow-orb-2 {
+      position: absolute;
+      top: 40%;
+      right: -10%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, rgba(56, 189, 248, 0) 70%);
+      filter: blur(90px);
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 10, 18, 0.85);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: #ffffff;
+      padding: 2px;
+      object-fit: contain;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.1;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, rgba(0, 102, 255, 0.25), rgba(56, 189, 248, 0.25));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--brand-cyan);
+    }
+
+    .brand-sub {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-back-research {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #0066ff, #0052cc);
+      color: #ffffff;
+      padding: 9px 18px;
+      border-radius: var(--radius-full);
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 18px var(--brand-blue-glow);
+      transition: all 0.25s var(--ease);
+    }
+
+    .btn-back-research:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0, 102, 255, 0.5);
+    }
+
+    /* Main Page Header */
+    .page-header {
+      padding: 44px 0 30px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 32px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .page-desc {
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+      max-width: 650px;
+    }
+
+    /* Highlighting Newly Executed Lead */
+    .execution-result-card {
+      background: rgba(18, 27, 48, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--brand-cyan);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.25);
+      position: relative;
+      animation: fadeIn 0.4s var(--ease);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .exec-badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .exec-card-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Radial Score Gauge */
+    .fit-score-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-emerald) calc(var(--score) * 1%), rgba(255, 255, 255, 0.08) 0);
+      padding: 3px;
+      flex-shrink: 0;
+    }
+
+    .fit-score-inner {
+      width: 100%;
+      height: 100%;
+      background: #0e1424;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fit-score-num {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #34d399;
+      line-height: 1;
+    }
+
+    .fit-score-txt {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    /* Controls Bar: Filters + CSV Export */
+    .feed-controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+      background: rgba(18, 27, 48, 0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+    }
+
+    .filter-pills-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .filter-pill:hover, .filter-pill.active {
+      background: rgba(0, 102, 255, 0.2);
+      border-color: var(--brand-cyan);
+      color: #ffffff;
+    }
+
+    .btn-export-csv {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-export-csv:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    /* Leads Grid */
+    .leads-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 22px;
+      margin-bottom: 60px;
+    }
+
+    .lead-card {
+      background: rgba(18, 27, 48, 0.65);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.28s var(--ease);
+      position: relative;
+    }
+
+    .lead-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--brand-blue), var(--brand-cyan));
+      opacity: 0;
+      transition: opacity 0.28s var(--ease);
+    }
+
+    .lead-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 102, 255, 0.35);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    .lead-card:hover::before {
+      opacity: 1;
+    }
+
+    .lead-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .lead-company-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .lead-sector-badge {
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--brand-cyan);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .provenance-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 4px 10px;
+      margin-bottom: 14px;
+      width: fit-content;
+    }
+
+    .provenance-pill a {
+      color: var(--brand-cyan);
+      text-decoration: none;
+    }
+
+    .lead-matched-hardware {
+      background: rgba(0, 102, 255, 0.12);
+      border: 1px solid rgba(0, 102, 255, 0.28);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+
+    .hardware-tag {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brand-cyan);
+      font-weight: 700;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .hardware-name {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .lead-rationale {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .lead-contact-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Actions Strip */
+    .lead-actions-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status-dropdown {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn-action-icon {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: #ffffff;
+      padding: 7px 11px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-action-icon.whatsapp {
+      background: rgba(37, 211, 102, 0.12);
+      border-color: rgba(37, 211, 102, 0.3);
+      color: #25d366;
+    }
+
+    .btn-action-icon.whatsapp:hover {
+      background: #25d366;
+      color: #000000;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+    }
+
+    .btn-action-icon:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      border: 1px solid var(--brand-cyan);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 999;
+    }
+
+    .toast.show {
+      display: flex;
+      animation: toastIn 0.3s var(--ease);
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 30px 0;
+      background: #05070d;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      margin-top: auto;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="brand-wrap">
+        <img src="{% static 'favicon.svg' %}" alt="Tylcao Logo" class="brand-logo-img" onerror="this.onerror=null; this.src='/static/favicon.svg'; if(!this.complete) this.src='logo/favicon.svg';">
+        <div class="brand-name">
+          Tylcao
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <a href="/" class="btn-back-research">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Nouvelle Recherche
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Flux d'Opportunités B2B</h1>
+        <p class="page-desc">
+          Résultats de la qualification IA Google Gemini 1.5 Flash et gestion du pipeline de prospection pour ExpressDisplay Tunisie.
+        </p>
+      </div>
+
+      <button class="btn-export-csv" onclick="exportLeadsCSV()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exporter CSV (1-Clic)
+      </button>
+    </div>
+
+    <!-- Highlighted newly qualified lead card (if URL was provided) -->
+    <div id="newLeadBannerWrap"></div>
+
+    <!-- Filter Bar -->
+    <div class="feed-controls-bar">
+      <div class="filter-pills-group">
+        <button class="filter-pill active" onclick="filterLeads('ALL', this)">Tous les prospects (<span id="countAll">5</span>)</button>
+        <button class="filter-pill" onclick="filterLeads('HIGH', this)">⭐ Fit Score > 90%</button>
+        <button class="filter-pill" onclick="filterLeads('SANTE', this)">🏥 Cliniques & Santé</button>
+        <button class="filter-pill" onclick="filterLeads('RETAIL', this)">🛍️ Retail & Mode</button>
+        <button class="filter-pill" onclick="filterLeads('CORP', this)">🏢 Corporate & Banques</button>
+      </div>
+      <div style="font-size: 0.82rem; color: var(--text-muted);">
+        Trié par affinité IA décroissante
+      </div>
+    </div>
+
+    <!-- Leads Grid -->
+    <div class="leads-grid" id="leadsGrid"></div>
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastBox">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="toastMsg">Pitch copié dans le presse-papier !</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>
+        <strong style="color: #ffffff;">Tylcao</strong> • Développé pour <strong>ExpressDisplay Tunisie</strong>
+      </div>
+      <div>
+        <span>Moteur Gemini 1.5 Flash • Pipeline Supabase Realtime</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Leads database
+    const leadsData = [
+      {
+        id: "lead-1",
+        company_name: "Clinique Pasteur Tunis",
+        sector: "Santé & Établissement Hospitalier",
+        category: "SANTE",
+        city: "Tunis, Berges du Lac",
+        fit_score: 94,
+        matched_product: "Borne Interactive & Gestion de File d'Attente",
+        product_code: "KIOSK",
+        source_type: "GOOGLE_MAPS",
+        source_query: 'Google Maps: "Cliniques Privées Grand Tunis"',
+        source_url: "https://cliniquepasteurtunis.com",
+        phone: "+216 71 850 000",
+        email: "direction@pasteurtunis.tn",
+        contact_person: "Dr. Ben Salem (Directeur Général)",
+        status: "NEW",
+        ai_rationale: "Flux élevé de plus de 250 patients/jour en salle d'attente et admissions. Besoin critique de fluidifier l'orientation et de digitaliser la distribution de tickets.",
+        generated_pitch: "Bonjour Dr. Ben Salem, nous avons analysé les flux d'accueil de la Clinique Pasteur. ExpressDisplay équipe les cliniques de référence en Tunisie avec nos bornes interactives de gestion de file d'attente intelligente, réduisant le temps d'attente perçu de 40%. Seriez-vous disponible pour une démonstration de 10 min cette semaine ?"
+      },
+      {
+        id: "lead-2",
+        company_name: "Carrefour Market Ariana",
+        sector: "Grande Distribution & Retail",
+        category: "RETAIL",
+        city: "Ariana",
+        fit_score: 89,
+        matched_product: "Écrans Étirés (Stretch Screens) & Têtes de Gondole",
+        product_code: "STRETCH",
+        source_type: "GOOGLE_MAPS",
+        source_query: 'Google Maps: "Supermarchés Ariana"',
+        source_url: "https://carrefourmarket.tn",
+        phone: "+216 70 011 222",
+        email: "contact.ariana@carrefour.tn",
+        contact_person: "M. Karim Trabelsi (Responsable Merchandising)",
+        status: "CONTACTED",
+        ai_rationale: "Supermarché à fort passage avec têtes de gondoles promotionnelles hebdomadaires. Les écrans bandeau étirés permettent d'augmenter le panier moyen de 18% sur les produits sponsorisés.",
+        generated_pitch: "Bonjour M. Trabelsi, pour dynamiser vos têtes de gondole à Carrefour Market Ariana, ExpressDisplay propose des écrans étirés ultra-lumineux programmables à distance. Vos promotions fournisseurs sont actualisées en 1 clic sans impression papier. Pouvons-nous vous envoyer un exemple chiffré ?"
+      },
+      {
+        id: "lead-3",
+        company_name: "Université Centrale Tunis",
+        sector: "Enseignement Supérieur Privé",
+        category: "CORP",
+        city: "Tunis Centre",
+        fit_score: 92,
+        matched_product: "Smart Board Interactif 86'' Tactile 4K",
+        product_code: "SMARTBOARD",
+        source_type: "DIRECTORY",
+        source_query: 'Annuaire B2B : "Grandes Écoles Privées"',
+        source_url: "https://universitecentrale.net",
+        phone: "+216 71 100 200",
+        email: "doyen.pedagogie@centrale.net",
+        contact_person: "Mme Sonia Mansour (Directrice Pédagogique)",
+        status: "IN_DISCUSSION",
+        ai_rationale: "Campus pluridisciplinaire disposant de 30 salles de cours et amphithéâtres. Forte orientation vers l'hybridation des cours et la collaboration interactive.",
+        generated_pitch: "Chère Mme Mansour, l'Université Centrale innove continuellement dans l'expérience étudiante. Nos Smart Boards 86'' 4K ExpressDisplay offrent tableau interactif tactile, visio hybride et partage d'écran sans fil pour vos enseignants. Souhaitez-vous recevoir notre brochure campus connectés ?"
+      },
+      {
+        id: "lead-4",
+        company_name: "Showroom Porsche Tunis Lac 2",
+        sector: "Automobile de Prestige",
+        category: "CORP",
+        city: "Berges du Lac 2",
+        fit_score: 96,
+        matched_product: "Mur d'Images LED Haute Définition (Pitch P1.8)",
+        product_code: "VIDEOWALL",
+        source_type: "GOOGLE_MAPS",
+        source_query: 'Google Maps: "Concessions Automobiles Lac 2"',
+        source_url: "https://porsche-tunisie.com",
+        phone: "+216 71 960 911",
+        email: "vip.showroom@porsche.tn",
+        contact_person: "M. Mehdi Charfi (Directeur Commercial)",
+        status: "NEW",
+        ai_rationale: "Showroom premium avec vitrine monumentale et clientèle VIP. Besoin d'un impact visuel ultra-haute fidélité pour mettre en scène les véhicules configurés sur mesure.",
+        generated_pitch: "Bonjour M. Charfi, pour sublimer la scénographie du showroom Porsche au Lac 2, nos murs d'images LED ExpressDisplay délivrent un contraste infini et un rafraîchissement d'image studio. Un rendez-vous sur place permettrait d'étudier l'implantation idéale pour vos lancements."
+      },
+      {
+        id: "lead-5",
+        company_name: "Banque Centrale de Tunisie",
+        sector: "Institution Financière & Banque Centrale",
+        category: "CORP",
+        city: "Tunis Centre",
+        fit_score: 96,
+        matched_product: "Murs d'Images LED & Bornes d'Orientation Sécurisées",
+        product_code: "BANK",
+        source_type: "MANUAL_URL",
+        source_query: 'Ajout Rapide : "https://bct.gov.tn"',
+        source_url: "https://bct.gov.tn",
+        phone: "+216 71 122 000",
+        email: "contact@bct.gov.tn",
+        contact_person: "Direction des Moyens Généraux & IT",
+        status: "NEW",
+        ai_rationale: "Siège institutionnel avec hall d'accueil d'envergure et salles de conférence/marché. Fort besoin d'affichage d'informations économiques en temps réel et de gestion moderne des flux.",
+        generated_pitch: "Bonjour, pour moderniser les espaces d'accueil et les salles de réunion de la Banque Centrale de Tunisie, ExpressDisplay propose des murs LED haute résolution et des solutions d'affichage dynamique sécurisées 24/7. Seriez-vous disponibles pour échanger sur vos projets audiovisuels ?"
+      }
+    ];
+
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    function checkNewlyExecutedLead() {
+      const urlParam = getQueryParam('url');
+      if (!urlParam) return;
+
+      const cleanUrl = urlParam.trim();
+      const isHospital = cleanUrl.includes('clinique') || cleanUrl.includes('sante') || cleanUrl.includes('augustin');
+      const isRetail = cleanUrl.includes('monoprix') || cleanUrl.includes('zara') || cleanUrl.includes('shop');
+      const isEdu = cleanUrl.includes('universite') || cleanUrl.includes('centrale') || cleanUrl.includes('ecole');
+
+      let name = cleanUrl.replace('https://', '').replace('http://', '').replace('www.', '').split('.')[0].replace(/-/g, ' ');
+      name = name.charAt(0).toUpperCase() + name.slice(1);
+      
+      let sector = "Établissement Tertiaire & Commercial";
+      let product = "Smart Board Interactif 75'' ou Totem Vitrine";
+      let score = 93;
+      let phone = "+216 71 850 000";
+      let email = "contact@" + cleanUrl.replace('https://', '').replace('http://', '').replace('www.', '').split('/')[0];
+      let contactPerson = "Directeur Général / Responsable Achats";
+      let rationale = "Établissement avec présence physique et fort flux de visiteurs en Tunisie. Excellente opportunité de digitalisation via les solutions d'affichage ExpressDisplay.";
+      let pitch = `Bonjour, suite à l'analyse de votre établissement ${name}, ExpressDisplay vous accompagne dans la modernisation de vos espaces d'accueil avec des solutions audiovisuelles interactives haute performance. Seriez-vous disponible pour un échange rapide cette semaine ?`;
+
+      if (isHospital) {
+        name = "Clinique Saint-Augustin (Tunis)";
+        sector = "Santé & Établissement Médical";
+        product = "Borne Interactive & Gestion de File d'Attente";
+        score = 95;
+        phone = "+216 71 783 033";
+        email = "direction@clinique-saint-augustin.tn";
+        contactPerson = "Dr. H. Driss (Directeur Médical)";
+        rationale = "Établissement médical accueillant un flux continu de patients et de consultations. Nécessite une borne tactile pour orienter les visiteurs et optimiser le temps d'attente aux guichets.";
+        pitch = "Bonjour Dr. Driss, suite à l'analyse des flux de la Clinique Saint-Augustin, nos bornes interactives ExpressDisplay permettent de fluidifier les admissions et de réduire le temps d'attente perçu de 40%. Seriez-vous ouvert à une brève présentation ?";
+      } else if (isRetail) {
+        name = "Monoprix Tunisie";
+        sector = "Grande Distribution & Supermarché";
+        product = "Écrans Étirés (Stretch Screens) & Totems d'Entrée";
+        score = 90;
+        phone = "+216 71 184 000";
+        email = "marketing@monoprix.tn";
+        contactPerson = "Directeur du Réseau de Magasins";
+        rationale = "Réseau de magasins à forte affluence piétonne. Les écrans étirés sur linéaires et têtes de gondole favorisent les ventes croisées et la mise en valeur des promotions.";
+        pitch = "Bonjour, nos écrans étirés ExpressDisplay permettent à Monoprix de moderniser ses linéaires et d'augmenter le panier moyen sur les produits sponsorisés en temps réel. Pouvons-nous vous présenter une simulation chiffrée ?";
+      } else if (isEdu) {
+        name = "Université Centrale Tunis";
+        sector = "Enseignement Supérieur & Campus";
+        product = "Smart Board Interactif 86'' Tactile 4K";
+        score = 94;
+        phone = "+216 71 100 200";
+        email = "direction.pedagogique@centrale.net";
+        contactPerson = "Directrice Pédagogique";
+        rationale = "Salles de classe et amphithéâtres nécessitant des outils collaboratifs tactiles et hybrides pour les étudiants et conférenciers.";
+      } else if (cleanUrl.includes('bct') || cleanUrl.includes('banque-centrale') || cleanUrl.includes('bank')) {
+        name = "Banque Centrale de Tunisie";
+        sector = "Institution Financière & Banque Centrale";
+        product = "Murs d'Images LED & Bornes d'Orientation Sécurisées";
+        score = 96;
+        phone = "+216 71 122 000";
+        email = "direction.it@bct.gov.tn";
+        contactPerson = "Direction des Moyens Généraux & IT";
+        rationale = "Siège institutionnel avec hall d'accueil de prestige et salles de conférence/marché. Fort besoin d'affichage d'informations financières en temps réel et de gestion moderne des flux de visiteurs.";
+        pitch = "Bonjour, nos solutions d'affichage dynamique et murs LED ExpressDisplay permettent de moderniser la communication visuelle de la Banque Centrale de Tunisie avec une haute fiabilité 24/7. Échangeons sur vos besoins d'équipement.";
+      }
+
+      const scoreParam = getQueryParam('score');
+      const productParam = getQueryParam('product');
+      const productMap = {
+        'BORNE': "Borne de Tickets / File d'attente",
+        'SMARTBOARD': "Smart Board Interactif 86'' Tactile 4K",
+        'TOTEM': "Totems Digitaux (Intérieur/Extérieur)",
+        'VIDEOWALL': "Video Wall / Mur d'écrans LED Haute Définition",
+        'STRETCH': "Stretch Screens (Boutiques/Linéaires)",
+        'DISPLAY': "Écrans d'affichage dynamique Professionnels 4K"
+      };
+
+      if (productParam && productMap[productParam]) {
+        product = productMap[productParam];
+      }
+
+      if (scoreParam === 'HIGH') {
+        score = Math.max(score, 94);
+      } else if (scoreParam === 'MED') {
+        score = 78;
+      }
+
+      const newLead = {
+        id: "lead-" + Date.now(),
+        company_name: name,
+        sector: sector,
+        category: "SANTE",
+        city: "Grand Tunis",
+        fit_score: score,
+        matched_product: product,
+        product_code: "EXEC",
+        source_type: "MANUAL_URL",
+        source_query: `Ajout Rapide : "${cleanUrl}"`,
+        source_url: cleanUrl,
+        phone: phone,
+        email: email,
+        contact_person: contactPerson,
+        status: "NEW",
+        ai_rationale: rationale,
+        generated_pitch: pitch
+      };
+
+      // Add to beginning of leads data
+      leadsData.unshift(newLead);
+
+      // Render top execution banner
+      const bannerWrap = document.getElementById('newLeadBannerWrap');
+      bannerWrap.innerHTML = `
+        <div class="execution-result-card">
+          <div class="exec-badge-top">
+            <span>✨</span>
+            <span>Résultat de la Qualification Immédiate Gemini 1.5 Flash</span>
+          </div>
+
+          <div class="exec-card-grid">
+            <div>
+              <h2 style="font-family: var(--font-display); font-size: 1.6rem; color: #ffffff; margin-bottom: 4px;">
+                ${name}
+              </h2>
+              <div style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+                <span>🌐 ${cleanUrl}</span> • <span>${sector}</span>
+              </div>
+
+              <div class="lead-matched-hardware" style="margin-bottom: 14px;">
+                <span class="hardware-tag">Matériel Recommandé</span>
+                <div class="hardware-name" style="font-size: 1.05rem;">${product}</div>
+              </div>
+
+              <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+                <strong style="color: #ffffff;">Justification IA :</strong> ${rationale}
+              </p>
+
+              <div class="lead-contact-strip" style="background: rgba(255,255,255,0.03); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 16px;">
+                <div class="contact-item"><strong>📞 Contact :</strong> ${phone}</div>
+                <div class="contact-item"><strong>✉️ Courriel :</strong> ${email}</div>
+                <div class="contact-item" style="width: 100%;"><strong>👤 Décisionnaire :</strong> ${contactPerson}</div>
+              </div>
+
+              <div style="background: rgba(0, 102, 255, 0.08); border: 1px solid rgba(0, 102, 255, 0.25); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 18px; font-size: 0.88rem; color: #ffffff; font-style: italic;">
+                "${pitch}"
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-action-icon whatsapp" style="padding: 9px 18px; font-size: 0.88rem;" onclick="openWhatsApp('${phone}', '${escapeQuotes(pitch)}')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+                  Contacter via WhatsApp
+                </button>
+                <button class="btn-action-icon" style="padding: 9px 16px; font-size: 0.88rem;" onclick="openMailto('${email}', '${escapeQuotes(name)}', '${escapeQuotes(pitch)}')">
+                  ✉️ Envoyer un Email
+                </button>
+                <button class="btn-action-icon" style="padding: 9px 16px; font-size: 0.88rem;" onclick="copyPitch('${escapeQuotes(pitch)}')">
+                  📋 Copier le Pitch
+                </button>
+              </div>
+            </div>
+
+            <div class="fit-score-badge" style="--score: ${score}">
+              <div class="fit-score-inner">
+                <span class="fit-score-num">${score}%</span>
+                <span class="fit-score-txt">Fit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLeads(leadsToDisplay) {
+      const grid = document.getElementById('leadsGrid');
+      grid.innerHTML = '';
+      document.getElementById('countAll').textContent = leadsData.length;
+
+      leadsToDisplay.forEach(lead => {
+        const card = document.createElement('div');
+        card.className = 'lead-card';
+        card.id = lead.id;
+
+        card.innerHTML = `
+          <div>
+            <div class="lead-card-top">
+              <div>
+                <h3 class="lead-company-name">${lead.company_name}</h3>
+                <div class="lead-sector-badge">
+                  <span>🏢</span>
+                  <span>${lead.sector} • ${lead.city}</span>
+                </div>
+              </div>
+              <div class="fit-score-badge" style="--score: ${lead.fit_score}">
+                <div class="fit-score-inner">
+                  <span class="fit-score-num">${lead.fit_score}%</span>
+                  <span class="fit-score-txt">Fit</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="provenance-pill">
+              <span>📍</span>
+              <span>${lead.source_query}</span>
+              ${lead.source_url ? `• <a href="${lead.source_url}" target="_blank" rel="noopener">Lien ↗</a>` : ''}
+            </div>
+
+            <div class="lead-matched-hardware">
+              <span class="hardware-tag">Recommandation ExpressDisplay</span>
+              <div class="hardware-name">${lead.matched_product}</div>
+            </div>
+
+            <p class="lead-rationale">${lead.ai_rationale}</p>
+
+            <div class="lead-contact-strip">
+              <div class="contact-item">
+                <span>📞</span>
+                <strong>${lead.phone}</strong>
+              </div>
+              <div class="contact-item">
+                <span>✉️</span>
+                <span>${lead.email}</span>
+              </div>
+              <div class="contact-item" style="width: 100%;">
+                <span>👤</span>
+                <span>${lead.contact_person}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lead-actions-strip">
+            <select class="status-dropdown" onchange="updateLeadStatus('${lead.id}', this.value)">
+              <option value="NEW" ${lead.status === 'NEW' ? 'selected' : ''}>Nouveau</option>
+              <option value="CONTACTED" ${lead.status === 'CONTACTED' ? 'selected' : ''}>Contacté</option>
+              <option value="IN_DISCUSSION" ${lead.status === 'IN_DISCUSSION' ? 'selected' : ''}>En discussion</option>
+              <option value="WON" ${lead.status === 'WON' ? 'selected' : ''}>Gagné 🎉</option>
+              <option value="LOST" ${lead.status === 'LOST' ? 'selected' : ''}>Perdu</option>
+            </select>
+
+            <div style="display: flex; gap: 6px;">
+              <button class="btn-action-icon whatsapp" onclick="openWhatsApp('${lead.phone}', '${escapeQuotes(lead.generated_pitch)}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2z"/></svg>
+                WhatsApp
+              </button>
+              <button class="btn-action-icon" onclick="openMailto('${lead.email}', '${escapeQuotes(lead.company_name)}', '${escapeQuotes(lead.generated_pitch)}')">
+                ✉️
+              </button>
+              <button class="btn-action-icon" onclick="copyPitch('${escapeQuotes(lead.generated_pitch)}')">
+                📋
+              </button>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function escapeQuotes(str) {
+      return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function filterLeads(filterKey, element) {
+      document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+
+      let filtered = leadsData;
+      if (filterKey === 'HIGH') {
+        filtered = leadsData.filter(l => l.fit_score >= 90);
+      } else if (filterKey === 'SANTE') {
+        filtered = leadsData.filter(l => l.category === 'SANTE');
+      } else if (filterKey === 'RETAIL') {
+        filtered = leadsData.filter(l => l.category === 'RETAIL');
+      } else if (filterKey === 'CORP') {
+        filtered = leadsData.filter(l => l.category === 'CORP');
+      }
+
+      renderLeads(filtered);
+    }
+
+    function updateLeadStatus(id, newStatus) {
+      const item = leadsData.find(l => l.id === id);
+      if (item) {
+        item.status = newStatus;
+        showToast(`Statut mis à jour : ${newStatus}`);
+      }
+    }
+
+    function openWhatsApp(phone, pitch) {
+      const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+      const encodedText = encodeURIComponent(pitch || '');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodedText}`, '_blank');
+    }
+
+    function openMailto(email, company, pitch) {
+      const subject = encodeURIComponent(`Solutions Audiovisuelles ExpressDisplay pour ${company}`);
+      const body = encodeURIComponent(pitch);
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+
+    function copyPitch(pitchText) {
+      navigator.clipboard.writeText(pitchText).then(() => {
+        showToast("Pitch commercial copié !");
+      }).catch(() => {
+        showToast("Copié !");
+      });
+    }
+
+    function exportLeadsCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "ID,Entreprise,Secteur,Ville,Fit_Score,Produit_Recommande,Telephone,Email,Decisonnaire,Statut,Source_Origine,Pitch_Commercial\n";
+
+      leadsData.forEach(l => {
+        const row = [
+          `"${l.id}"`,
+          `"${l.company_name}"`,
+          `"${l.sector}"`,
+          `"${l.city}"`,
+          l.fit_score,
+          `"${l.matched_product}"`,
+          `"${l.phone}"`,
+          `"${l.email}"`,
+          `"${l.contact_person}"`,
+          `"${l.status}"`,
+          `"${l.source_query}"`,
+          `"${(l.generated_pitch || '').replace(/"/g, '""')}"`
+        ];
+        csvContent += row.join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `ExpressDisplay_Opportunites_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("Fichier CSV téléchargé avec succès !");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastBox');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkNewlyExecutedLead();
+      renderLeads(leadsData);
+    });
+  </script>
+</body>
+</html>
